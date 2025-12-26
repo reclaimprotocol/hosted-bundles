@@ -1,16 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Wallet } from 'ethers';
 
 export default function DummyWebsitePage() {
   const [loading, setLoading] = useState(false);
   const [verificationUrl, setVerificationUrl] = useState('');
+  const [baseUrl, setBaseUrl] = useState('');
   const [formData, setFormData] = useState({
     bundleId: 'education',
-    callbackUrl: 'http://localhost:3000/api/dummy-callback',
+    callbackUrl: '',
     providerId: 'ff4d7afe-4b78-4795-9429-d20df2deaad7',
   });
+
+  // Set baseUrl and callbackUrl on client side only
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const url = process.env.NEXT_PUBLIC_BASE_URL || window.location.origin;
+      setBaseUrl(url);
+      setFormData(prev => ({
+        ...prev,
+        callbackUrl: `${url}/api/dummy-callback`,
+      }));
+    }
+  }, []);
 
   const generateVerificationUrl = async () => {
     setLoading(true);
@@ -45,7 +58,7 @@ export default function DummyWebsitePage() {
         signature,
       });
 
-      const url = `${window.location.origin}/verify?${params.toString()}`;
+      const url = `${baseUrl}/verify?${params.toString()}`;
       setVerificationUrl(url);
 
       console.log('Generated verification request:');

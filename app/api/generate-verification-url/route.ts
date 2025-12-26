@@ -105,15 +105,38 @@ console.log('Verification URL:', verificationUrl);
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin;
+
+    // Validate environment variables
+    const reclaimAppId = process.env.RECLAIM_APP_ID;
+    const reclaimAppSecret = process.env.RECLAIM_APP_SECRET;
+
+    if (!reclaimAppId || !reclaimAppSecret) {
+      console.error('Missing environment variables:', {
+        RECLAIM_APP_ID: reclaimAppId ? 'set' : 'MISSING',
+        RECLAIM_APP_SECRET: reclaimAppSecret ? 'set' : 'MISSING',
+      });
+      return NextResponse.json(
+        {
+          error: 'Server configuration error',
+          message: 'RECLAIM_APP_ID or RECLAIM_APP_SECRET is not configured. Please set these environment variables in your deployment settings.',
+          details: {
+            RECLAIM_APP_ID: reclaimAppId ? 'configured' : 'missing',
+            RECLAIM_APP_SECRET: reclaimAppSecret ? 'configured' : 'missing',
+          }
+        },
+        { status: 500 }
+      );
+    }
+
     const proofRequestOptions = {
         useAppClip: false,
         customSharePageUrl: 'https://portal.reclaimprotocol.org/kernel',
-        
+
     }
 
     const reclaimProofRequest = await ReclaimProofRequest.init(
-      process.env.RECLAIM_APP_ID,
-      process.env.RECLAIM_APP_SECRET,
+      reclaimAppId,
+      reclaimAppSecret,
       providerId,
       proofRequestOptions
     );
@@ -131,8 +154,8 @@ console.log('Verification URL:', verificationUrl);
     const requestUrl = await reclaimProofRequest.getRequestUrl();
 
     const reclaimProofRequestFallback = await ReclaimProofRequest.init(
-      process.env.RECLAIM_APP_ID,
-      process.env.RECLAIM_APP_SECRET,
+      reclaimAppId,
+      reclaimAppSecret,
       providerId
     );
 

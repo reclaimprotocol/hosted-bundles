@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Provider } from '@/types';
 
 interface BundleProps {
-  providers: never[];
+  providers?: Provider[];
   onSelect: (providerId: string) => void;
 }
 

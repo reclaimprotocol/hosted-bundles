@@ -10,7 +10,7 @@ export default function DummyWebsitePage() {
   const [formData, setFormData] = useState({
     bundleId: 'education',
     callbackUrl: '',
-    providerId: 'ff4d7afe-4b78-4795-9429-d20df2deaad7',
+    providerId: '',
   });
 
   // Set baseUrl and callbackUrl on client side only

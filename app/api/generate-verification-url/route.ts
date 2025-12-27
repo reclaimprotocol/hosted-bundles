@@ -10,9 +10,20 @@ export async function POST(request: NextRequest) {
     const { applicationId, bundleId, sessionId, providerId, signature, callbackUrl } = body;
 
     // Validate required fields
-    if (!applicationId || !bundleId || !sessionId || !providerId || !signature || !callbackUrl) {
+    if (!applicationId || !bundleId || !sessionId || !signature || !callbackUrl) {
       return NextResponse.json(
-        { error: 'Missing required fields: applicationId, bundleId, sessionId, providerId, signature, callbackUrl' },
+        { error: 'Missing required fields: applicationId, bundleId, sessionId, signature, callbackUrl' },
+        { status: 400 }
+      );
+    }
+
+    // For default bundle, providerId is required
+    if (bundleId === 'default' && !providerId) {
+      return NextResponse.json(
+        {
+          error: 'Missing required field: providerId',
+          message: 'When using bundleId "default", you must provide a providerId. The default bundle requires a specific provider to be selected.'
+        },
         { status: 400 }
       );
     }

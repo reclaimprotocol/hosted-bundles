@@ -81,3 +81,107 @@ cp .env.example .env
 ```
 
 **Never commit `.env` to git!** It's already in `.gitignore`.
+
+---
+
+## Helper Endpoints
+
+### Generate Signed URL
+
+**Endpoint:** `POST /api/helper/generate-signed-url`
+
+Generate a properly signed verification URL without implementing the signing logic yourself.
+
+**Request:**
+```json
+{
+  "applicationSecret": "YOUR_APPLICATION_SECRET",
+  "bundleId": "education",
+  "callbackUrl": "https://your-app.com/callback",
+  "sessionId": "unique-session-id",
+  "providerId": "optional-provider-id"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "url": "https://your-app.com/verify?applicationId=0x...&signature=0x...",
+  "applicationId": "0x...",
+  "signature": "0x..."
+}
+```
+
+### Verify Callback Signature
+
+**Endpoint:** `POST /api/helper/verify-callback`
+
+Verify that a callback payload came from the verification portal.
+
+**Request:**
+Pass the entire callback payload as-is:
+```json
+{
+  "data": {
+    "sessionId": "...",
+    "applicationId": "...",
+    "bundleId": "...",
+    "proofs": [...],
+    "timestamp": "..."
+  },
+  "signature": "0x..."
+}
+```
+
+**Response (Success):**
+```json
+{
+  "verified": true,
+  "score": 100,
+  "message": "Signature verified successfully",
+  "signer": "0x..."
+}
+```
+
+**Response (Failed):**
+```json
+{
+  "verified": false,
+  "score": 0,
+  "message": "Invalid signature",
+  "details": {
+    "expectedSigner": "0x...",
+    "recoveredSigner": "0x..."
+  }
+}
+```
+
+**Example Usage (Node.js):**
+```javascript
+// In your callback endpoint
+app.post('/callback', async (req, res) => {
+  const payload = req.body; // { data, signature }
+
+  // Verify the signature
+  const verifyResponse = await fetch('https://your-verification-portal.com/api/helper/verify-callback', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  const result = await verifyResponse.json();
+
+  if (result.verified && result.score === 100) {
+    // Signature is valid, process the verification
+    console.log('Verification proof is authentic!');
+    // Access the data safely
+    const { proofs } = payload.data;
+  } else {
+    // Signature is invalid, reject
+    console.log('Invalid signature, possible tampering!');
+  }
+
+  res.json({ success: true });
+});
+```

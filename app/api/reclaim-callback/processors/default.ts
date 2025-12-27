@@ -5,23 +5,10 @@ export class DefaultProcessor implements ProofProcessor {
     try {
       console.log('Default processor received parameters:', extractedParameters);
 
-      // Build a generic formatted response
-      const formattedData = {
-        // User information
-        userId: extractedParameters.userId || extractedParameters.id || '',
-        email: extractedParameters.email || '',
-        name: extractedParameters.name || '',
-
-        // Include all extracted parameters
-        verifiedData: extractedParameters,
-
-        // Status
-        verified: true,
-      };
-
+      // Return extracted parameters as-is
       return {
         success: true,
-        data: formattedData,
+        data: extractedParameters,
         metadata: {
           verified: true,
           timestamp: Date.now(),

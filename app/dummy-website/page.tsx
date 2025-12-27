@@ -128,17 +128,19 @@ export default function DummyWebsitePage() {
             {/* Provider ID */}
             <div>
               <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                Provider ID (optional - for education bundle, search after)
+                Provider ID {formData.bundleId === 'default' ? '(required for default bundle)' : '(optional - for education bundle, search after)'}
               </label>
               <input
                 type="text"
                 value={formData.providerId}
                 onChange={(e) => setFormData({ ...formData, providerId: e.target.value })}
-                placeholder="provider-id-here"
+                placeholder={formData.bundleId === 'default' ? 'provider-id-required' : 'provider-id-here'}
                 className="w-full px-3 sm:px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-sm sm:text-base"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Leave empty to show provider selection page
+                {formData.bundleId === 'default'
+                  ? 'Required: Must provide a provider ID for default bundle'
+                  : 'Optional: Leave empty to show provider selection page'}
               </p>
             </div>
 

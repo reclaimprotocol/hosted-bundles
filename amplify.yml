@@ -6,7 +6,10 @@ frontend:
         - npm ci
     build:
       commands:
-        - env | grep -e RECLAIM_APP_ID -e RECLAIM_APP_SECRET -e NEXT_PUBLIC_BASE_URL
+        - echo "Checking environment variables..."
+        - echo "RECLAIM_APP_ID=${RECLAIM_APP_ID:0:10}..."
+        - echo "RECLAIM_APP_SECRET=${RECLAIM_APP_SECRET:0:10}..."
+        - echo "NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL"
         - npm run build
   artifacts:
     baseDirectory: .next
@@ -16,3 +19,9 @@ frontend:
     paths:
       - node_modules/**/*
       - .next/cache/**/*
+  env:
+    variables:
+      # These are just placeholders - actual values come from Amplify Console
+      RECLAIM_APP_ID: $RECLAIM_APP_ID
+      RECLAIM_APP_SECRET: $RECLAIM_APP_SECRET
+      NEXT_PUBLIC_BASE_URL: $NEXT_PUBLIC_BASE_URL

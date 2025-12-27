@@ -22,69 +22,43 @@ export async function POST(request: NextRequest) {
     const isValid = verifySignature(signatureData, signature, applicationId);
 
     if (!isValid) {
-      const exampleCode = `// Install ethers.js first:
-// npm install ethers
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin;
+      const exampleCode = `// Use the helper endpoint to generate a signed URL
 
-import { Wallet } from 'ethers';
+// Using curl:
+curl -X POST ${baseUrl}/api/helper/generate-signed-url \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "applicationSecret": "YOUR_APPLICATION_SECRET",
+    "bundleId": "${bundleId}",
+    "callbackUrl": "${callbackUrl}",
+    "sessionId": "${sessionId}"${providerId ? `,\n    "providerId": "${providerId}"` : ''}
+  }'
 
-/**
- * Generate a signed verification URL
- * @param {string} applicationSecret - Your application secret from .env
- * @param {string} bundleId - The bundle ID (e.g., 'education')
- * @param {string} callbackUrl - Your callback URL to receive verification results
- * @param {string} sessionId - Unique session identifier
- * @param {string} providerId - (Optional) The provider ID for verification
- * @returns {Promise<string>} The signed verification URL
- */
-async function getSignedVerificationUrl(
-  applicationSecret,
-  bundleId,
-  callbackUrl,
-  sessionId,
-  providerId
-) {
-  // Create wallet from your application secret
-  const wallet = new Wallet(applicationSecret);
-  const applicationId = wallet.address;
+// Using JavaScript/Node.js:
+const response = await fetch('${baseUrl}/api/helper/generate-signed-url', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    applicationSecret: process.env.APPLICATION_SECRET,
+    bundleId: '${bundleId}',
+    callbackUrl: '${callbackUrl}',
+    sessionId: '${sessionId}'${providerId ? `,\n    providerId: '${providerId}'` : ''}
+  })
+});
 
-  // The data to sign (keys must be sorted alphabetically)
-  const data = {
-    applicationId,
-    bundleId,
-    callbackUrl,
-    sessionId
-  };
+const data = await response.json();
+console.log('Verification URL:', data.url);
 
-  // Create the message (keys sorted alphabetically)
-  const sortedKeys = Object.keys(data).sort();
-  const message = sortedKeys.map(key => \`\${key}:\${data[key]}\`).join('|');
-
-  // Sign the message
-  const signature = await wallet.signMessage(message);
-
-  // Build the verification URL
-  const params = new URLSearchParams({
-    applicationId,
-    bundleId,
-    sessionId,
-    providerId,
-    callbackUrl,
-    signature
-  });
-
-  return \`${request.nextUrl.origin}/verify/process?\${params.toString()}\`;
-}
-
-// Usage example:
-const verificationUrl = await getSignedVerificationUrl(
-  process.env.APPLICATION_SECRET, // Your application secret from .env
-  '${bundleId}',                  // Bundle ID
-  '${callbackUrl}',               // Your callback URL
-  '${sessionId}',                 // Session ID
-  ${providerId ? `'${providerId}'` : `''`}                        // Optional: Your provider ID
-);
-
-console.log('Verification URL:', verificationUrl);
+// Response:
+// {
+//   "success": true,
+//   "url": "https://your-app.com/verify?...",
+//   "applicationId": "0x...",
+//   "signature": "0x..."
+// }
 
 // For more information, visit: https://docs.reclaimprotocol.org/hosted-bundles
 `;
@@ -98,6 +72,7 @@ console.log('Verification URL:', verificationUrl);
             signedData: signatureData,
           },
           example: exampleCode,
+          helper: `${baseUrl}/api/helper/generate-signed-url`,
           docs: 'https://docs.reclaimprotocol.org/hosted-bundles',
         },
         { status: 401 }

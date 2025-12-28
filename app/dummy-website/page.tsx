@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Wallet } from 'ethers';
+import { getApplicationCredentials } from '@/lib/application-credentials';
 
 export default function DummyWebsitePage() {
   const [loading, setLoading] = useState(false);
@@ -28,9 +29,8 @@ export default function DummyWebsitePage() {
   const generateVerificationUrl = async () => {
     setLoading(true);
     try {
-      // Generate a random private key for demo purposes
-      const wallet = Wallet.createRandom();
-      const applicationId = wallet.address;
+      // Get application credentials
+      const { applicationId, applicationSecret } = getApplicationCredentials();
       const sessionId = `session-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
       // Create the signature message
@@ -45,7 +45,8 @@ export default function DummyWebsitePage() {
       const sortedKeys = Object.keys(signatureData).sort();
       const message = sortedKeys.map(key => `${key}:${signatureData[key as keyof typeof signatureData]}`).join('|');
 
-      // Sign the message
+      // Sign the message with application secret
+      const wallet = new Wallet(applicationSecret);
       const signature = await wallet.signMessage(message);
 
       // Build the verification URL
@@ -65,7 +66,6 @@ export default function DummyWebsitePage() {
       console.log('- Application ID:', applicationId);
       console.log('- Session ID:', sessionId);
       console.log('- Signature:', signature);
-      console.log('- Private Key (for demo):', wallet.privateKey);
     } catch (error) {
       console.error('Error generating URL:', error);
       alert('Failed to generate verification URL');

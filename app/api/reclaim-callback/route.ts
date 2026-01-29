@@ -169,6 +169,7 @@ export async function POST(request: NextRequest) {
           proofs: processedProofs,
           timestamp: new Date().toISOString(),
           institutionName: institutionName || undefined,
+	  rawProofs: proofs
         };
 
         // Sign the data using the app secret

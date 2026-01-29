@@ -128,7 +128,7 @@ console.log('Verification URL:', data.url);
     );
 
     reclaimProofRequest.setAppCallbackUrl(`${baseUrl}/api/reclaim-callback`, true);
-    reclaimProofRequest.setContext(sessionId, JSON.stringify({ applicationId, bundleId, sessionId, providerId, signature, callbackUrl }) );
+    reclaimProofRequest.setContext(sessionId, JSON.stringify({ applicationId, bundleId, sessionId, providerId, signature, callbackUrl, reclaimSessionId : reclaimProofRequest.sessionId }) );
     reclaimProofRequest.setRedirectUrl(`${baseUrl}/verify/status?` + new URLSearchParams({
       sessionId,
       applicationId,
@@ -138,6 +138,7 @@ console.log('Verification URL:', data.url);
     }).toString());
 
     const requestUrl = await reclaimProofRequest.getRequestUrl();
+    console.log(await reclaimProofRequest.toJsonString())
 
     const reclaimProofRequestFallback = await ReclaimProofRequest.init(
       reclaimAppId,
@@ -146,7 +147,7 @@ console.log('Verification URL:', data.url);
     );
 
     reclaimProofRequestFallback.setAppCallbackUrl(`${baseUrl}/api/reclaim-callback`, true);
-    reclaimProofRequestFallback.setContext(sessionId, JSON.stringify({ applicationId, bundleId, sessionId, providerId, signature, callbackUrl }) );
+    reclaimProofRequestFallback.setContext(sessionId, JSON.stringify({ applicationId, bundleId, sessionId, providerId, signature, callbackUrl, reclaimSessionId: reclaimProofRequestFallback.sessionId }) );
     reclaimProofRequestFallback.setRedirectUrl(`${baseUrl}/verify/status?` + new URLSearchParams({
       sessionId,
       applicationId,
@@ -154,6 +155,8 @@ console.log('Verification URL:', data.url);
       callbackUrl,
       signature,
     }).toString());
+
+    console.log("request fallback", await reclaimProofRequestFallback.toJsonString());
 
     return NextResponse.json({
       url: requestUrl,

@@ -10,6 +10,7 @@ function VerifyContent() {
   const [signatureError, setSignatureError] = useState(false);
   const [signatureErrorDetails, setSignatureErrorDetails] = useState<any>(null);
   const [validating, setValidating] = useState(true);
+  const [reclaimSessionId, setReclaimSessionId] = useState('');
 
   const params = {
     applicationId: searchParams.get('applicationId') || '',
@@ -56,7 +57,7 @@ function VerifyContent() {
         });
 
         const data = await response.json();
-
+        console.log('Reclaim session ID:', data);
         if (data.error === 'Invalid signature') {
           // Replace temp providerId with actual value from params for display
           if (data.example) {
@@ -79,7 +80,7 @@ function VerifyContent() {
   if (signatureError) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <TopBar applicationId={params.applicationId} />
+        <TopBar applicationId={params.applicationId} hideTestingBanner={true} sessionId={reclaimSessionId} />
         <div className="flex items-center justify-center min-h-[calc(100vh-64px)] bg-gradient-to-br from-red-50 via-white to-orange-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl border border-red-200 p-8 max-w-4xl w-full">
             <div className="text-center mb-6">
@@ -149,7 +150,7 @@ function VerifyContent() {
   if (validating) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <TopBar applicationId={params.applicationId} />
+        <TopBar applicationId={params.applicationId} hideTestingBanner={true} sessionId={params.sessionId} />
         <div className="flex items-center justify-center h-[calc(100vh-64px)]">
           <div className="text-gray-600">Validating signature...</div>
         </div>
@@ -159,7 +160,7 @@ function VerifyContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopBar applicationId={params.applicationId} />
+      <TopBar applicationId={params.applicationId} hideTestingBanner={true} sessionId={params.sessionId} />
       <ProviderSelector params={params} />
     </div>
   );
@@ -169,7 +170,7 @@ export default function VerifyPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gray-50">
-        <TopBar />
+        <TopBar hideTestingBanner={true} />
         <div className="flex items-center justify-center h-[calc(100vh-64px)]">
           <div className="text-gray-600">Loading...</div>
         </div>

@@ -160,6 +160,7 @@ console.log('Verification URL:', data.url);
 
     return NextResponse.json({
       url: requestUrl,
+      main : await reclaimProofRequest.toJsonString(),
       fallback : await reclaimProofRequestFallback.toJsonString(),
       sessionId,
     });

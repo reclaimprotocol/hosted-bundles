@@ -8,16 +8,17 @@ function ProcessWrapper() {
   const searchParams = useSearchParams();
   const applicationId = searchParams.get('applicationId') || '';
   const [fallback, setFallback] = useState<string | null>(null);
+  const [reclaimSessionId, setReclaimSessionId] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen bg-white">
-      <TopBar applicationId={applicationId} fallback={fallback} />
-      <ProcessContentWrapper onFallbackReady={setFallback} />
+      <TopBar applicationId={applicationId} fallback={fallback} sessionId={reclaimSessionId || undefined} hideTestingBanner={true} />
+      <ProcessContentWrapper onFallbackReady={setFallback} onSessionIdReady={setReclaimSessionId} />
     </div>
   );
 }
 
-function ProcessContentWrapper({ onFallbackReady }: { onFallbackReady: (fallback: string) => void }) {
+function ProcessContentWrapper({ onFallbackReady, onSessionIdReady }: { onFallbackReady: (fallback: string) => void; onSessionIdReady: (sessionId: string) => void }) {
   const searchParams = useSearchParams();
   const [verificationUrl, setVerificationUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +54,16 @@ function ProcessContentWrapper({ onFallbackReady }: { onFallbackReady: (fallback
           setVerificationUrl(data.url);
           if (data.fallback) {
             onFallbackReady(data.fallback);
+          }
+          if (data.main) {
+            try {
+              const mainData = JSON.parse(data.main);
+              if (mainData.sessionId) {
+                onSessionIdReady(mainData.sessionId);
+              }
+            } catch (e) {
+              console.error('Error parsing main data:', e);
+            }
           }
         } else if (data.error === 'Invalid signature') {
           console.log('Setting signature error with details:', data);
@@ -206,7 +217,7 @@ export default function ProcessPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-white">
-        <TopBar />
+        <TopBar hideTestingBanner={true} />
         <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-gradient-to-br from-blue-50 via-white to-purple-50">
           <div className="text-gray-600">Loading...</div>
         </div>

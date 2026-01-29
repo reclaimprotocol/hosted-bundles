@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
     let applicationId = '';
     let sessionId = '';
     let incomingSignature = '';
+    let debugReclaimSessionId = '';
 
     if (contextData) {
       try {
@@ -101,6 +102,7 @@ export async function POST(request: NextRequest) {
     applicationId = metadata.applicationId || '';
     sessionId = metadata.sessionId || '';
     incomingSignature = metadata.signature || '';
+    debugReclaimSessionId = metadata.reclaimSessionId || '';
     const providerId = metadata.providerId;
 
     console.log('Final metadata:', { bundleId, callbackUrl, applicationId, sessionId, providerId });
